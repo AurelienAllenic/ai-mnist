@@ -1,7 +1,10 @@
+import Panel from "./components/Panel/Panel";
+import "./index.css";
+
 function App() {
   return (
     <>
-      <p>test</p>
+      <Panel />
     </>
   );
 }
