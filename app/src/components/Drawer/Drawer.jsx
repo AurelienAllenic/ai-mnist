@@ -190,7 +190,7 @@ const Drawer = () => {
 
   return (
     <div className="drawer-container">
-      <h2>Dessinez un chiffre</h2>
+      <h2 className="drawer-title">Dessinez un chiffre</h2>
       <canvas
         ref={canvasRef}
         width={280}
