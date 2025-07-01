@@ -28,3 +28,6 @@
   border-radius: 8px;
   border: 1px solid #b2ffb2;
 }
+.drawer-canvas {
+  touch-action: none;
+}

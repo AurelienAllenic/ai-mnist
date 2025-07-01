@@ -7,9 +7,10 @@ const Drawer = () => {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const sessionRef = useRef(null);
+  const isDrawingRef = useRef(false);
+
   const [prediction, setPrediction] = useState(null);
   const [confidence, setConfidence] = useState(null);
-  const isDrawingRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -20,6 +21,7 @@ const Drawer = () => {
     ctx.strokeStyle = "black";
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     contextRef.current = ctx;
 
     const loadModel = async () => {
@@ -37,26 +39,49 @@ const Drawer = () => {
     loadModel();
   }, []);
 
-  const startDrawing = (e) => {
-    isDrawingRef.current = true;
-    draw(e);
+  // Récupère la position (x,y) pour souris ou tactile
+  const getXY = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+
+    if (e.touches) {
+      // Événement tactile
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top,
+      };
+    } else {
+      // Événement souris
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+    }
   };
 
-  const stopDrawing = () => {
-    isDrawingRef.current = false;
-    contextRef.current.beginPath();
+  const startDrawing = (e) => {
+    e.preventDefault();
+    isDrawingRef.current = true;
+    const { x, y } = getXY(e);
+    const ctx = contextRef.current;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
   };
 
   const draw = (e) => {
+    e.preventDefault();
     if (!isDrawingRef.current) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getXY(e);
     const ctx = contextRef.current;
     ctx.lineTo(x, y);
     ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(x, y);
+  };
+
+  const stopDrawing = (e) => {
+    e.preventDefault();
+    isDrawingRef.current = false;
+    contextRef.current.beginPath();
   };
 
   const clearCanvas = () => {
@@ -200,6 +225,10 @@ const Drawer = () => {
         onMouseUp={stopDrawing}
         onMouseOut={stopDrawing}
         onMouseMove={draw}
+        onTouchStart={startDrawing}
+        onTouchEnd={stopDrawing}
+        onTouchCancel={stopDrawing}
+        onTouchMove={draw}
       />
       <div className="drawer-controls">
         <Btn type="retry" onClick={clearCanvas} />
