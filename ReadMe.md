@@ -1,0 +1,35 @@
+# CNN AI PROJECT
+
+## 1. DESCRIPTION
+
+This project is the creation and use of an Mnist AI to recognize digits handWritten by the user.
+
+## 2. Technologies
+
+Python
+Jupyter
+HTML / CSS / JS
+
+## 3. STRUCTURE
+
+cnn.ipynb = the training file for our AI
+cnn.pth = the model of our AI
+convert_to_onnx.py = used to transform our .pth model into a .onnx file
+index.html, index.js and styles.css = files necessary to run the app
+requirements.txt = file containing all the necessary packages list to install to run the app
+
+## 4. Installation
+
+Install requirements
+
+```
+pip install -r requirements.txt
+```
+
+If you still encounter difficulties install other dependencies, according to your actual configuration that you will find at this address
+
+```
+https://pytorch.org/get-started/locally/
+```
+
+Run index.html with live server to use the app
