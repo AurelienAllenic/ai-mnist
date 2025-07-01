@@ -6,16 +6,16 @@ This project is the creation and use of an Mnist AI to recognize digits handWrit
 
 ## 2. Technologies
 
-Python
-Jupyter
+Python  
+Jupyter  
 HTML / CSS / JS
 
 ## 3. STRUCTURE
 
-cnn.ipynb = the training file for our AI
-cnn.pth = the model of our AI
-convert_to_onnx.py = used to transform our .pth model into a .onnx file
-index.html, index.js and styles.css = files necessary to run the app
+cnn.ipynb = the training file for our AI  
+cnn.pth = the model of our AI  
+convert_to_onnx.py = used to transform our .pth model into a .onnx file  
+index.html, index.js and styles.css = files necessary to run the app  
 requirements.txt = file containing all the necessary packages list to install to run the app
 
 ## 4. Installation
