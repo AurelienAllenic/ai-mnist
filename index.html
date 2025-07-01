@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MNIST Reconnaissance avec ONNX.js</title>
+    <style>
+      body {
+        font-family: Arial;
+        text-align: center;
+        margin-top: 40px;
+      }
+      #canvas {
+        border: 2px solid black;
+        background: white;
+        cursor: crosshair;
+      }
+      #result {
+        font-size: 2em;
+        margin-top: 20px;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    <script>
+      let session;
+      window.onload = async () => {
+        session = await loadModel();
+        document.getElementById("predict").onclick = async () => {
+          const input = getInputFromCanvas(document.getElementById("canvas"));
+          const pred = await predict(session, input);
+          document.getElementById("result").textContent =
+            "Prédiction : " + pred;
+        };
+        document.getElementById("clear").onclick = () => {
+          const canvas = document.getElementById("canvas");
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          document.getElementById("result").textContent = "";
+        };
+      };
+
+      async function loadModel() {
+        return await ort.InferenceSession.create("mnist_cnn.onnx");
+      }
+
+      function getInputFromCanvas(canvas) {
+        const tmpCanvas = document.createElement("canvas");
+        tmpCanvas.width = 28;
+        tmpCanvas.height = 28;
+        const tmpCtx = tmpCanvas.getContext("2d");
+        tmpCtx.drawImage(canvas, 0, 0, 28, 28);
+        const imgData = tmpCtx.getImageData(0, 0, 28, 28);
+        const input = [];
+        for (let i = 0; i < imgData.data.length; i += 4) {
+          let val = 1 - imgData.data[i] / 255;
+          val = (val - 0.1307) / 0.3081;
+          input.push(val);
+        }
+        return input;
+      }
+
+      async function predict(session, inputPixels) {
+        const tensor = new ort.Tensor(
+          "float32",
+          Float32Array.from(inputPixels),
+          [1, 1, 28, 28]
+        );
+        const feeds = { input: tensor };
+        const outputMap = await session.run(feeds);
+        const outputData = outputMap.output.data;
+        let maxIndex = 0;
+        for (let i = 1; i < outputData.length; i++) {
+          if (outputData[i] > outputData[maxIndex]) maxIndex = i;
+        }
+        return maxIndex;
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Reconnaissance MNIST avec ONNX.js</h1>
+    <canvas id="canvas" width="280" height="280"></canvas><br />
+    <button id="clear">Effacer</button>
+    <button id="predict">Prédire</button>
+    <div id="result"></div>
+
+    <script>
+      // Gestion du dessin sur canvas
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      ctx.lineWidth = 20;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "black";
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let drawing = false;
+      canvas.addEventListener("mousedown", () => (drawing = true));
+      canvas.addEventListener("mouseup", () => {
+        drawing = false;
+        ctx.beginPath();
+      });
+      canvas.addEventListener("mouseout", () => {
+        drawing = false;
+        ctx.beginPath();
+      });
+      canvas.addEventListener("mousemove", (e) => {
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+      });
+    </script>
+  </body>
+</html>
